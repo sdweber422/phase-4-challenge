@@ -10,12 +10,18 @@ app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.get('/', (request, response) => {
-  const title = 'Vinyl'
   database.getAlbums((error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
     } else {
-      response.render('index', { albums: albums, title: title })
+      response.render('index', {
+        albums: albums,
+        title: 'Vinyl',
+        firstLink: 'signup',
+        secondLink: 'signin',
+        firstLinkText: 'Sign Up',
+        secondLinkText: 'Sign In',
+      })
     }
   })
 })
