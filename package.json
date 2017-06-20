@@ -5,10 +5,12 @@
   "scripts": {
     "start": "node server.js",
     "start:dev": "nodemon server.js",
+    "db:combine": "cat albums.sql > combinedSeeds.sql; cat users.sql >> combinedSeeds.sql",
     "db:create": "createdb vinyl",
     "db:drop": "dropdb vinyl",
+    "db:reset": "npm run db:drop && npm run db:create && npm run db:schema && npm run db:combine && npm run db:seed && rm combinedSeeds.sql",
     "db:schema": "psql -d vinyl < schema.sql",
-    "db:seed": "psql -d vinyl < albums.sql"
+    "db:seed": "psql -d vinyl < combinedSeeds.sql"
   },
   "license": "MIT",
   "dependencies": {
