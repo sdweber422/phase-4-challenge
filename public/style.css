@@ -41,3 +41,23 @@ a:hover {
 .header-links {
   margin-right: 20%;
 }
+
+.signup-page {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 700px;
+  justify-content: center;
+}
+
+.input-row {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.input-box {
+  display: flex;
+  justify-content: flex-start;
+  margin-left: 50px;
+}
