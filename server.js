@@ -31,7 +31,7 @@ app.use( session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', checkForAuthorization, (request, response) => {
+app.get('/', (request, response) => {
   database.getAlbums((error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
