@@ -18,5 +18,14 @@
     <% }) %>
   </div>
 
+  <h2>Recent Reviews</h2>
+  <div class="review-list">
+    <% reviews.forEach(function(review) { %>
+      <h3><a href="/albums/<%= review.album_id %>"><%= review.album.title%></a></h3>
+      <h5><%= review.created_at%></h5>
+      <h5><%= review.body %></h5>
+      <h4>by: <%= review.user.name%></h4>
+    <% }) %>
+  </div>
 </body>
 </html>

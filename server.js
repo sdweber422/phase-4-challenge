@@ -35,14 +35,35 @@ app.get('/', (request, response) => {
   database.getAlbums((error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
-    } else {
-      response.render('index', {
-        albums: albums,
-        title: 'Vinyl',
-        firstLink: 'signup',
-        secondLink: 'signin',
-        firstLinkText: 'Sign Up',
-        secondLinkText: 'Sign In',
+    }
+    else {
+      database.getAllUsers((error, users) => {
+        if (error) {
+          response.status(500).render('error', { error: error })
+        }
+        else {
+          database.getLastThreeReviews((error, reviews) => {
+            if (error) {
+              response.status(500).render('error', { error: error })
+            }
+            else {
+              reviews.forEach( review => {
+                review.album = albums.filter( album => album.id === review.album_id )[0]
+                review.user = users.filter( user => user.id === review.user_id )[0]
+              })
+              response.render('index', {
+                albums: albums,
+                users: users,
+                reviews: reviews,
+                title: 'Vinyl',
+                firstLink: 'signup',
+                secondLink: 'signin',
+                firstLinkText: 'Sign Up',
+                secondLinkText: 'Sign In',
+              })
+            }
+          })
+        }
       })
     }
   })
@@ -53,17 +74,29 @@ app.get('/profile/:id', checkForAuthorization, (request, response) => {
   database.getAlbums((error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
-    } else {
-      response.render('profile', {
-        albums: albums,
-        joinDate: created_at,
-        name: name,
-        email: email,
-        title: 'Profile Page',
-        firstLink: `profile/${id}`,
-        secondLink: 'signout',
-        firstLinkText: 'Profile',
-        secondLinkText: 'Sign Out',
+    }
+    else {
+      database.getReviewsByUserID(id, (error, reviews) => {
+        if (error) {
+          response.status(500).render('error', { error: error })
+        }
+        else {
+          reviews.forEach( review => {
+            review.album = albums.filter( album => album.id === review.album_id)[0]
+          })
+          response.render('profile', {
+            albums: albums,
+            reviews: reviews,
+            joinDate: created_at,
+            name: name,
+            email: email,
+            title: 'Profile Page',
+            firstLink: `profile/${id}`,
+            secondLink: 'signout',
+            firstLinkText: 'Profile',
+            secondLinkText: 'Sign Out',
+          })
+        }
       })
     }
   })
@@ -71,13 +104,40 @@ app.get('/profile/:id', checkForAuthorization, (request, response) => {
 
 app.get('/albums/:albumID', checkForAuthorization, (request, response) => {
   const albumID = request.params.albumID
-
+  const id = request.user[0].id
   database.getAlbumsByID(albumID, (error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
-    } else {
-      const album = albums[0]
-      response.render('album', { album: album })
+    }
+    else {
+      database.getReviewsByAlbumID(albumID, (error, reviews) => {
+        if (error) {
+          response.status(500).render('error', { error: error })
+        }
+        else {
+          database.getAllUsers((error, users) => {
+            if (error) {
+              response.status(500).render('error', { error: error })
+            }
+            else {
+              const album = albums[0]
+              reviews.forEach( review => {
+                review.user = users.filter( user => user.id === review.user_id )[0]
+                review.album = album
+              })
+              response.render('album', {
+                album: album,
+                reviews: reviews,
+                title: `Vinyl: ${album.title}`,
+                firstLink: `profile/${id}`,
+                secondLink: 'signout',
+                firstLinkText: 'Profile',
+                secondLinkText: 'Sign Out',
+              })
+            }
+          })
+        }
+      })
     }
   })
 })
@@ -106,14 +166,72 @@ app.post( '/createUser', ( request, response, next ) => {
     response.redirect( '/signup' )
   }
   database.addUser( name, email, password, ( error, user ) => {
-    const id = user[0].id
-    request.login(user, function(err) {
-      if (err) { return next(err); }
-      return response.redirect( `/profile/${id}` );
-    })
+    if (error) {
+      response.status(500).render('error', { error: error })
+    }
+    else {
+      const id = user[0].id
+      request.login(user, function(err) {
+        if (err) { return next(err); }
+        return response.redirect( `/profile/${id}` );
+      })
+    }
   })
 })
 
+app.post( '/addReview/:album_id', checkForAuthorization, ( request, response, next ) => {
+  const { review } = request.body
+  const albumID = request.params.album_id
+  const userID = request.user[0].id
+  if( !review.length ) {
+    response.status(500).render('error', { error: new Error('No empty reviews')})
+  }
+  database.addReview( review, ( error, newReview ) => {
+    if (error) {
+      response.status(500).render('error', { error: error })
+    }
+    else {
+      const reviewID = newReview[0].id
+      database.connectReviewToUserAndAlbum( reviewID, userID, albumID, ( error, results ) => {
+        if (error) {
+          response.status(500).render('error', { error: error })
+        }
+        else {
+          response.redirect( `/profile/${userID}` )
+        }
+      })
+    }
+  })
+ })
+
+app.get( '/newReview/:album_id', checkForAuthorization, ( request, response ) => {
+  const { album_id } = request.params
+  database.getAlbumsByID(album_id, (error, albums) => {
+    if (error) {
+      response.status(500).render('error', { error: error })
+    }
+    else {
+      const album = albums[0]
+      response.render('newReview', {
+        album: album,
+        title: 'New Review',
+      })
+    }
+  })
+})
+
+app.post( '/delete/:review_id', checkForAuthorization, ( request, response ) => {
+  const { review_id } = request.params
+  const id = request.user[0].id
+  database.deleteReviewByID(review_id, (error, deletedReview) => {
+    if (error) {
+      response.status(500).render('error', { error: error })
+    }
+    else {
+      response.redirect( `/profile/${id}`)
+    }
+  })
+})
 // Error handler
 
 app.use((request, response) => {
