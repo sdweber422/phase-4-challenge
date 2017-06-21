@@ -7,25 +7,33 @@
 
   <%- include('./header') %>
 
-  <h2>Records</h2>
+  <img class="vinyl" src="phonograph.jpg" / />
+  <div class="record-review-container">
+
 
   <div class="album-list">
+    <h1>Records</h1>
     <% albums.forEach(function(album) { %>
       <div>
-        <h5><a href="/albums/<%= album.id %>"><%= album.title %></a></h5>
-        <span><%= album.artist %></span>
+        <h3><a href="/albums/<%= album.id %>"><%= album.title %></a></h3>
+        <h4><%= album.artist %></h4>
       </div>
     <% }) %>
   </div>
 
-  <h2>Recent Reviews</h2>
   <div class="review-list">
+    <h1>Recent Reviews</h1>
     <% reviews.forEach(function(review) { %>
-      <h3><a href="/albums/<%= review.album_id %>"><%= review.album.title%></a></h3>
-      <h5><%= review.created_at%></h5>
+      <div class="review-album-header">
+        <h3><a href="/albums/<%= review.album_id %>"><%= review.album.title%></a></h3>
+        <h5><%= review.created_at%></h5>
+      </div>
       <h5><%= review.body %></h5>
-      <h4>by: <%= review.user.name%></h4>
+      <div class="review-album-footer">
+        <h4>by: <%= review.user.name%></h4>
+      </div>
     <% }) %>
   </div>
+</div>
 </body>
 </html>

@@ -61,3 +61,71 @@ a:hover {
   justify-content: flex-start;
   margin-left: 50px;
 }
+
+.vinyl {
+  width: 100vw;
+  height: 150px;
+}
+
+.record-review-container {
+  display: flex;
+  justify-content: space-around;
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.album-list {
+  /*display: flex;
+  justify-content: flex-start;*/
+  width: 300px;
+}
+
+.review-list {
+  /*display: flex;
+  justify-content: flex-start;*/
+  width: 600px;
+}
+
+.review-album-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.review-album-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.new-review-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  justify-content: center;
+  width: 400px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+.album-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 600px;
+}
+
+.add-review-button {
+  height: 50px;
+  width: 100px;
+}
+
+.album-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: 600px;
+}
