@@ -42,10 +42,20 @@ const addUser = function(name, email, password, callback) {
   query("INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *", [name, email, password], callback)
 }
 
+const addReview = function(review, callback) {
+  query("INSERT INTO reviews (body) VALUES ($1) RETURNING *", [review], callback)
+}
+
+const connectReviewToUserAndAlbum = function(reviewID, userID, albumID, callback) {
+  query("INSERT INTO user_album_reviews (user_id, album_id, review_id) VALUES ($1, $2, $3) RETURNING *", [userID, albumID, reviewID], callback)
+}
+
 module.exports = {
   getAlbums,
   getAlbumsByID,
   getUsersByEmail,
   getUserByID,
-  addUser
+  addUser,
+  addReview,
+  connectReviewToUserAndAlbum
 }
