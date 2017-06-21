@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
-const authenticate = passport.authenticate( 'local', { successRedirect: '/', failureRedirect: '/signin' } )
+const authenticate = passport.authenticate( 'local', { failureRedirect: '/signin' } )
 const database = require('./database')
 const app = express()
 
@@ -48,6 +48,24 @@ app.get('/', checkForAuthorization, (request, response) => {
   })
 })
 
+app.get('/profile/:id', checkForAuthorization, (request, response) => {
+  const { id } = request.params
+  database.getAlbums((error, albums) => {
+    if (error) {
+      response.status(500).render('error', { error: error })
+    } else {
+      response.render('profile', {
+        albums: albums,
+        title: 'Vinyl',
+        firstLink: `profile/${id}`,
+        secondLink: 'signout',
+        firstLinkText: 'Profile',
+        secondLinkText: 'Sign Out',
+      })
+    }
+  })
+})
+
 app.get('/albums/:albumID', checkForAuthorization, (request, response) => {
   const albumID = request.params.albumID
 
@@ -69,7 +87,10 @@ app.get( '/signup', ( request, response ) => {
   response.render( 'signup', { title: 'Sign Up' } )
 })
 
-app.post( '/verifyUser', authenticate )
+app.post( '/verifyUser', authenticate, ( request, response ) => {
+    const id = request.user[0].id
+    response.redirect( `/profile/${id}` )
+})
 
 app.use((request, response) => {
   response.status(404).render('not_found')
