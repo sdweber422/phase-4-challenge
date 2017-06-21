@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<%- include('./head') %>
+
+<body>
+
+<div class="signin-signup-page">
+  <h1>Sign Up for Vinyl</h1>
+  <form action="/createUser" method="post">
+    <div class="input-row">
+      <h2>Name </h2>
+      <input class="input-box" name="name"/>
+    </div>
+    <div class="input-row">
+      <h2>Email </h2>
+      <input class="input-box" name="email"/>
+    </div>
+    <div class="input-row">
+      <h2>Password </h2>
+      <input class="input-box" name="password"/>
+    </div>
+    <button type="submit">Submit</button>
+  </form>
+</div>
+
+</body>
+</html>

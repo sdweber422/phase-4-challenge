@@ -1,25 +1,75 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
+const session = require('express-session')
+const passport = require('passport')
+const LocalStrategy = require('passport-local').Strategy
+const authenticate = passport.authenticate( 'local', { failureRedirect: '/signin' } )
 const database = require('./database')
 const app = express()
+
+const checkForAuthorization = ( request, response, next ) => {
+  if ( request.isAuthenticated() ) {
+    next()
+  }
+  else {
+    response.redirect( '/' )
+  }
+}
 
 require('ejs')
 app.set('view engine', 'ejs');
 
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use( cookieParser() )
+app.use( session({
+  secret: 'special_session',
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/', (request, response) => {
   database.getAlbums((error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
     } else {
-      response.render('index', { albums: albums })
+      response.render('index', {
+        albums: albums,
+        title: 'Vinyl',
+        firstLink: 'signup',
+        secondLink: 'signin',
+        firstLinkText: 'Sign Up',
+        secondLinkText: 'Sign In',
+      })
     }
   })
 })
 
-app.get('/albums/:albumID', (request, response) => {
+app.get('/profile/:id', checkForAuthorization, (request, response) => {
+  const { id, name, email, created_at } = request.user[0]
+  database.getAlbums((error, albums) => {
+    if (error) {
+      response.status(500).render('error', { error: error })
+    } else {
+      response.render('profile', {
+        albums: albums,
+        joinDate: created_at,
+        name: name,
+        email: email,
+        title: 'Profile Page',
+        firstLink: `profile/${id}`,
+        secondLink: 'signout',
+        firstLinkText: 'Profile',
+        secondLinkText: 'Sign Out',
+      })
+    }
+  })
+})
+
+app.get('/albums/:albumID', checkForAuthorization, (request, response) => {
   const albumID = request.params.albumID
 
   database.getAlbumsByID(albumID, (error, albums) => {
@@ -32,9 +82,72 @@ app.get('/albums/:albumID', (request, response) => {
   })
 })
 
+app.get( '/signin', ( request, response ) => {
+  response.render( 'signin', { title: 'Sign In' } )
+})
+
+app.get( '/signup', ( request, response ) => {
+  response.render( 'signup', { title: 'Sign Up' } )
+})
+
+app.get( '/signout', ( request, response ) => {
+  request.logout()
+  response.redirect( '/' )
+})
+
+app.post( '/verifyUser', authenticate, ( request, response ) => {
+    const id = request.user[0].id
+    response.redirect( `/profile/${id}` )
+})
+
+app.post( '/createUser', ( request, response, next ) => {
+  const { name, email, password } = request.body
+  if( !name || !email || !password ) {
+    response.redirect( '/signup' )
+  }
+  database.addUser( name, email, password, ( error, user ) => {
+    const id = user[0].id
+    request.login(user, function(err) {
+      if (err) { return next(err); }
+      return response.redirect( `/profile/${id}` );
+    })
+  })
+})
+
+// Error handler
+
 app.use((request, response) => {
   response.status(404).render('not_found')
 })
+
+// Passport functions
+
+passport.serializeUser(function(user, done) {
+  done(null, user[0].id)
+})
+
+passport.deserializeUser(function(id, done) {
+  database.getUserByID(id, function(err, user) {
+    done(err, user)
+  })
+})
+
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    database.getUsersByEmail(username, function (err, user) {
+      if (err) {
+        return done(err)
+      }
+      if (!user.length) {
+        return done(null, false, { message: 'Incorrect username.' })
+      }
+      if (user[0].password !== password) {
+        return done(null, false, { message: 'Incorrect password.' })
+      }
+      return done(null, user)
+    })
+  }
+))
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
