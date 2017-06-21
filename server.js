@@ -71,13 +71,21 @@ app.get('/profile/:id', checkForAuthorization, (request, response) => {
 
 app.get('/albums/:albumID', checkForAuthorization, (request, response) => {
   const albumID = request.params.albumID
-
+  const id = request.user[0].id
   database.getAlbumsByID(albumID, (error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
-    } else {
+    }
+    else {
       const album = albums[0]
-      response.render('album', { album: album })
+      response.render('album', {
+        album: album,
+        title: `Vinyl: ${album.title}`,
+        firstLink: `profile/${id}`,
+        secondLink: 'signout',
+        firstLinkText: 'Profile',
+        secondLinkText: 'Sign Out',
+       })
     }
   })
 })
@@ -114,6 +122,45 @@ app.post( '/createUser', ( request, response, next ) => {
   })
 })
 
+app.post( '/addReview/:album_id', checkForAuthorization, ( request, response, next ) => {
+  const { review } = request.body
+  const albumID = request.params.album_id
+  const userID = request.user[0].id
+  database.addReview( review, ( error, newReview ) => {
+    if (error) {
+      response.status(500).render('error', { error: error })
+    }
+    else {
+      const reviewID = newReview[0].id
+      database.connectReviewToUserAndAlbum( reviewID, userID, albumID, ( error, results ) => {
+        if (error) {
+          response.status(500).render('error', { error: error })
+        }
+        else {
+          console.log( results )
+          response.redirect( `/profile/${userID}` )
+        }
+      })
+    }
+  })
+ })
+
+app.get( '/newReview/:album_id', checkForAuthorization, ( request, response ) => {
+  const { album_id } = request.params
+  console.log( 'album_id', album_id )
+  database.getAlbumsByID(album_id, (error, albums) => {
+    if (error) {
+      response.status(500).render('error', { error: error })
+    }
+    else {
+      const album = albums[0]
+      response.render('newReview', {
+        album: album,
+        title: 'New Review',
+      })
+    }
+  })
+})
 // Error handler
 
 app.use((request, response) => {
