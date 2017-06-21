@@ -30,7 +30,17 @@ const getAlbumsByID = function(albumID, callback) {
   query("SELECT * FROM albums WHERE id = $1", [albumID], callback)
 }
 
+const getUsersByEmail = function(userEmail, callback) {
+  query("SELECT * from users WHERE email = $1", [userEmail], callback)
+}
+
+const getUserByID = function(userID, callback) {
+  query("SELECT * from users WHERE id = $1", [userID], callback)
+}
+
 module.exports = {
   getAlbums,
-  getAlbumsByID
+  getAlbumsByID,
+  getUsersByEmail,
+  getUserByID
 }
