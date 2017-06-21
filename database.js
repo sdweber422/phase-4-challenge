@@ -50,6 +50,30 @@ const connectReviewToUserAndAlbum = function(reviewID, userID, albumID, callback
   query("INSERT INTO user_album_reviews (user_id, album_id, review_id) VALUES ($1, $2, $3) RETURNING *", [userID, albumID, reviewID], callback)
 }
 
+const getLastThreeReviews = function(callback) {
+  query("SELECT * FROM reviews JOIN user_album_reviews ON id = review_id ORDER BY created_at DESC LIMIT 3", [], callback)
+}
+
+const getAllUsers = function(callback) {
+  query("SELECT * FROM users", [], callback)
+}
+
+const getReviewsByAlbumID = function(albumID, callback) {
+  query("SELECT * FROM reviews JOIN user_album_reviews ON id = review_id WHERE album_id = $1 ORDER BY created_at DESC", [albumID], callback)
+}
+
+const getReviewsByUserID = function(userID, callback) {
+  query("SELECT * FROM reviews JOIN user_album_reviews ON id = review_id WHERE user_id = $1 ORDER BY created_at DESC", [userID], callback)
+}
+
+const deleteReviewByID = function(reviewID, callback) {
+  query("DELETE FROM reviews WHERE id = $1",  [reviewID], callback)
+}
+
+const getReviewByID = function(reviewID, callback) {
+  query("SELECT * FROM reviews WHERE id = $1", [reviewID], callback)
+}
+
 module.exports = {
   getAlbums,
   getAlbumsByID,
@@ -57,5 +81,11 @@ module.exports = {
   getUserByID,
   addUser,
   addReview,
-  connectReviewToUserAndAlbum
+  connectReviewToUserAndAlbum,
+  getLastThreeReviews,
+  getAllUsers,
+  getReviewsByAlbumID,
+  getReviewsByUserID,
+  deleteReviewByID,
+  getReviewByID
 }
