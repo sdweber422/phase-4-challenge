@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+
+<%- include('./head') %>
+
+<body>
+
+<h1>New Review for <%= album.title %></h1>
+
+<form action="/addReview/<%= album.id %>" method="post">
+  <textarea cols="70" rows="20" name="review"></textarea>
+  <button type="submit">Submit Review</button>
+</form>
+
+</body>
+</html>

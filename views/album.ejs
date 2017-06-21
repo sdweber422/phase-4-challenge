@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Vinyl : <%= album.title %></title>
-  <link rel="stylesheet" type="text/css" href="/style.css">
-  <script type="text/javascript" src="/script.js"></script>
-</head>
+
+<%- include('./head') %>
+
 <body>
+
+  <%- include('./header') %>
 
   <h1><%= album.title %></h1>
   <em>by <%= album.artist %></em>
+  <em> <%= album.id %>/em>
+  <form action="/newReview/<%= album.id %>" method="get">
+    <button type="submit">Add Review</button>
+  </form>
 
   <h2>Reviews</h2>
 
