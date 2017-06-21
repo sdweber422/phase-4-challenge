@@ -7,14 +7,17 @@
 
   <div class="signin-signup-page">
     <h1>Sign In</h1>
-    <div class="input-row">
-      <h2>Email </h2>
-      <input class="input-box"/>
-    </div>
-    <div class="input-row">
-      <h2>Password </h2>
-      <input class="input-box"/>
-    </div>
+    <form action="/verifyUser" method="post">
+      <div class="input-row">
+        <h2>Email </h2>
+        <input class="input-box" name="username"/>
+      </div>
+      <div class="input-row">
+        <h2>Password </h2>
+        <input class="input-box" name="password"/>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
   </div>
 
 </body>
