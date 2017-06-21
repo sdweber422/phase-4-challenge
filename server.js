@@ -50,7 +50,6 @@ app.get('/', (request, response) => {
 
 app.get('/profile/:id', checkForAuthorization, (request, response) => {
   const { id, name, email, created_at } = request.user[0]
-  console.log( 'created_at', created_at )
   database.getAlbums((error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
@@ -91,9 +90,28 @@ app.get( '/signup', ( request, response ) => {
   response.render( 'signup', { title: 'Sign Up' } )
 })
 
+app.get( '/signout', ( request, response ) => {
+  request.logout()
+  response.redirect( '/' )
+})
+
 app.post( '/verifyUser', authenticate, ( request, response ) => {
     const id = request.user[0].id
     response.redirect( `/profile/${id}` )
+})
+
+app.post( '/createUser', ( request, response, next ) => {
+  const { name, email, password } = request.body
+  if( !name || !email || !password ) {
+    response.redirect( '/signup' )
+  }
+  database.addUser( name, email, password, ( error, user ) => {
+    const id = user[0].id
+    request.login(user, function(err) {
+      if (err) { return next(err); }
+      return response.redirect( `/profile/${id}` );
+    })
+  })
 })
 
 // Error handler
@@ -105,12 +123,10 @@ app.use((request, response) => {
 // Passport functions
 
 passport.serializeUser(function(user, done) {
-  console.log( 'SERIALIZE' )
   done(null, user[0].id)
 })
 
 passport.deserializeUser(function(id, done) {
-  console.log( 'DESERIALIZE' )
   database.getUserByID(id, function(err, user) {
     done(err, user)
   })
