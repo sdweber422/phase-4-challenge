@@ -59,7 +59,7 @@ app.get('/profile/:id', checkForAuthorization, (request, response) => {
         joinDate: created_at,
         name: name,
         email: email,
-        title: 'Vinyl',
+        title: 'Profile Page',
         firstLink: `profile/${id}`,
         secondLink: 'signout',
         firstLinkText: 'Profile',
