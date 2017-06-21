@@ -7,21 +7,27 @@
 
   <%- include('./header') %>
 
-  <h1><%= album.title %></h1>
-  <em>by <%= album.artist %></em>
-  <em> <%= album.id %>/em>
-  <form action="/newReview/<%= album.id %>" method="get">
-    <button type="submit">Add Review</button>
-  </form>
-
-  <h2>Reviews</h2>
-  <div class="review-list">
-    <% reviews.forEach(function(review) { %>
-      <h3><a href="/albums/<%= review.album_id %>"><%= review.album.title%></a></h3>
-      <h5><%= review.created_at%></h5>
-      <h5><%= review.body %></h5>
-      <h4>by: <%= review.user.name%></h4>
-    <% }) %>
+  <div class="container">
+    <div class="album-container">
+      <div class="album-header">
+        <h1><%= album.title %></h1>
+        <h3><em>by <%= album.artist %></em></h3>
+      </div>
+      <div class="album-header">
+        <h2>Reviews</h2>
+        <form action="/newReview/<%= album.id %>" method="get">
+          <button class="add-review-button" type="submit">Add Review</button>
+        </form>
+      </div>
+      <div class="review-list">
+        <% reviews.forEach(function(review) { %>
+          <h3><a href="/albums/<%= review.album_id %>"><%= review.album.title%></a></h3>
+          <h5><%= review.created_at%></h5>
+          <h5><%= review.body %></h5>
+          <h4>by: <%= review.user.name%></h4>
+          <% }) %>
+        </div>
+    </div>
   </div>
 
 </body>

@@ -4,13 +4,16 @@
 <%- include('./head') %>
 
 <body>
+<div class="container">
+  <div class="new-review-container">
+    <h1>New Review for <%= album.title %></h1>
 
-<h1>New Review for <%= album.title %></h1>
-
-<form action="/addReview/<%= album.id %>" method="post">
-  <textarea cols="70" rows="20" name="review"></textarea>
-  <button type="submit">Submit Review</button>
-</form>
+    <form action="/addReview/<%= album.id %>" method="post">
+      <textarea cols="70" rows="20" name="review"></textarea>
+      <button type="submit">Submit Review</button>
+    </form>
+  </div>
+</div>
 
 </body>
 </html>
