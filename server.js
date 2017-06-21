@@ -49,13 +49,17 @@ app.get('/', checkForAuthorization, (request, response) => {
 })
 
 app.get('/profile/:id', checkForAuthorization, (request, response) => {
-  const { id } = request.params
+  const { id, name, email, created_at } = request.user[0]
+  console.log( 'created_at', created_at )
   database.getAlbums((error, albums) => {
     if (error) {
       response.status(500).render('error', { error: error })
     } else {
       response.render('profile', {
         albums: albums,
+        joinDate: created_at,
+        name: name,
+        email: email,
         title: 'Vinyl',
         firstLink: `profile/${id}`,
         secondLink: 'signout',
@@ -92,9 +96,13 @@ app.post( '/verifyUser', authenticate, ( request, response ) => {
     response.redirect( `/profile/${id}` )
 })
 
+// Error handler
+
 app.use((request, response) => {
   response.status(404).render('not_found')
 })
+
+// Passport functions
 
 passport.serializeUser(function(user, done) {
   console.log( 'SERIALIZE' )
